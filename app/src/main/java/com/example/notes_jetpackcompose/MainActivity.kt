@@ -61,30 +61,29 @@ class MainActivity : ComponentActivity() {
                     Box {
 
                         NotesList(mainViewModel = mainViewModel)
-                        Box( modifier = Modifier
-                            .align(Alignment.BottomEnd)
-                            .padding(5.dp)
-                        ) {
-                            IconButton(
-                                onClick = {
-                                    startActivity(
-                                        Intent(
-                                            this@MainActivity,
-                                            AddEditNotesActivity::class.java
-                                        )
+
+                        IconButton(
+                            onClick = {
+                                startActivity(
+                                    Intent(
+                                        this@MainActivity,
+                                        AddEditNotesActivity::class.java
                                     )
-                                },
-                                modifier = Modifier
-                                    .clip(CircleShape)
-                                    .background(Orange)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Add,
-                                    contentDescription = "Add Note",
-                                    tint = Color.White
                                 )
-                            }
+                            },
+                            modifier = Modifier
+                                .padding(10.dp)
+                                .align(Alignment.BottomEnd)
+                                .clip(CircleShape)
+                                .background(Orange)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = "Add Note",
+                                tint = Color.White
+                            )
                         }
+
                     }
                 }
             }
@@ -121,14 +120,30 @@ fun NotesList(mainViewModel: MainViewModel) {
 @Composable
 fun NotesListPreview() {
     NotesJetpackComposeTheme {
-        IconButton(
-            onClick = { /*TODO*/ },
-            modifier = Modifier
-                .background(Orange)
-                .clip(CircleShape),
+        Box (
+            modifier = Modifier.fillMaxSize(),
+        ) {
+            LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp),){
+                items(20){
+                    NotesItem(title = "Title", content = "Content")
+                }
+            }
+            IconButton(
+                onClick = { /*TODO*/ },
+                modifier = Modifier
+                    .padding(20.dp)
+                    .align(Alignment.BottomEnd)
+                    .clip(CircleShape)
+                    .background(Orange)
+                    ,
 
-            ){
-            Icon( imageVector = Icons.Default.Add, contentDescription = "Add Note", tint = Color.White)
+                ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Add Note",
+                    tint = Color.White
+                )
+            }
         }
     }
 }
