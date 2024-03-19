@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Notes-JetpackCompose</string>
+    <string name="title_activity_add_edit_notes">AddEditNotesActivity</string>
+</resources>
