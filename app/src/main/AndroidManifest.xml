@@ -24,6 +24,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".AddEditNotesActivity"
+            android:exported="true"
+            android:label="@string/title_activity_add_edit_notes" />
     </application>
 
 </manifest>

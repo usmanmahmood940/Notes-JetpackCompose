@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -58,26 +59,29 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Box {
+                    Box (modifier = Modifier.padding(top = 10.dp, bottom = 10.dp)){
 
-                        NotesList(mainViewModel = mainViewModel)
-
+                        NotesList(mainViewModel = mainViewModel, onNoteClick = {
+                            editNotes(it)
+                        })
                         IconButton(
                             onClick = {
                                 startActivity(
                                     Intent(
                                         this@MainActivity,
                                         AddEditNotesActivity::class.java
-                                    )
+                                    ).putExtra("isEdit", false)
                                 )
                             },
                             modifier = Modifier
-                                .padding(10.dp)
+                                .padding(20.dp)
                                 .align(Alignment.BottomEnd)
                                 .clip(CircleShape)
                                 .background(Orange)
+                                .padding(5.dp)
                         ) {
                             Icon(
+                                modifier = Modifier.size(30.dp),
                                 imageVector = Icons.Default.Add,
                                 contentDescription = "Add Note",
                                 tint = Color.White
@@ -89,17 +93,33 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    fun editNotes(note: Note){
+        startActivity(
+            Intent(
+                this@MainActivity,
+                AddEditNotesActivity::class.java
+            ).apply {
+                putExtra("isEdit", true)
+                putExtra("noteId", note.id)
+            }
+        )
+    }
 }
 
 @Composable
-fun NotesList(mainViewModel: MainViewModel) {
+fun NotesList(mainViewModel: MainViewModel, onNoteClick: (Note) -> Unit) {
     val notes = mainViewModel.notesStateFlow.collectAsState()
     when(notes.value){
         is CustomResponse.Success -> {
             LazyColumn(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(10.dp),){
                 items(items = (notes.value as CustomResponse.Success).notesList){
                     note ->
-                    NotesItem(title = note.title, content = note.content)
+                    Box(modifier = Modifier.clickable {
+                        onNoteClick(note)
+                    }) {
+                        NotesItem(title = note.title, content = note.content)
+                    }
                 }
             }
         }
@@ -135,15 +155,18 @@ fun NotesListPreview() {
                     .align(Alignment.BottomEnd)
                     .clip(CircleShape)
                     .background(Orange)
-                    ,
+                    .padding(5.dp)
 
                 ) {
                 Icon(
+                    modifier = Modifier.size(30.dp),
                     imageVector = Icons.Default.Add,
                     contentDescription = "Add Note",
-                    tint = Color.White
+                    tint = Color.White,
+
                 )
             }
         }
     }
 }
+

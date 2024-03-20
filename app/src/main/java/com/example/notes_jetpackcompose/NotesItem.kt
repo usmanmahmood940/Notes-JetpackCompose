@@ -15,6 +15,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.notes_jetpackcompose.ui.theme.LightGray
+import com.example.notes_jetpackcompose.ui.theme.LightOrange
 import com.example.notes_jetpackcompose.ui.theme.NotesJetpackComposeTheme
 
 @Composable
@@ -23,7 +24,7 @@ fun NotesItem(title: String, content: String) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(LightGray)
+            .background(LightOrange)
             .padding(16.dp)
             .padding(start = 8.dp)
     ) {

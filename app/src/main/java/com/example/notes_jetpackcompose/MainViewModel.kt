@@ -11,13 +11,11 @@ class MainViewModel @Inject constructor(private val repository: NotesRepository)
     suspend fun getNotes() {
         repository.getNotes()
     }
-    suspend fun addNotes(note: Note) {
-        repository.addNotes(note)
-    }
+
     suspend fun updateNotes(note: Note) {
-        repository.updateNotes(note)
+        repository.upsertNote(note)
     }
-    suspend fun deleteNotes(note: Note) {
-        repository.deleteNotes(note)
+    suspend fun deleteNotes(noteId: Int) {
+        repository.deleteNotes(noteId)
     }
 }

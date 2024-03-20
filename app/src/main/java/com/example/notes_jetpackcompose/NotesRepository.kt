@@ -15,15 +15,15 @@ class NotesRepository @Inject constructor(private val notesDatabase: NotesDataba
         }
     }
 
-    suspend fun addNotes(note: Note) {
-        notesDatabase.getNotesDao().insertNote(note)
+    suspend fun upsertNote(note: Note) {
+        notesDatabase.getNotesDao().upsertNote(note)
     }
 
-    suspend fun updateNotes(note: Note) {
-        notesDatabase.getNotesDao().updateNote(note)
+    suspend fun deleteNotes(noteId: Int) {
+        notesDatabase.getNotesDao().deleteNote(noteId)
     }
 
-    suspend fun deleteNotes(note: Note) {
-        notesDatabase.getNotesDao().deleteNote(note)
+    suspend fun getNoteById(id: Int): Note {
+        return notesDatabase.getNotesDao().getNoteById(id)
     }
 }
