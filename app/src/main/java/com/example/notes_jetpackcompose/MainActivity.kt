@@ -2,6 +2,8 @@ package com.example.notes_jetpackcompose
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -21,7 +23,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
@@ -31,10 +32,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.notes_jetpackcompose.ui.theme.NotesJetpackComposeTheme
 import com.example.notes_jetpackcompose.ui.theme.Orange
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -42,16 +50,29 @@ class MainActivity : ComponentActivity() {
     private val mainViewModel:MainViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        lifecycleScope.launch {
-//            mainViewModel.addNotes(
+            mainViewModel.getNotes()
+            Handler(Looper.getMainLooper()).postDelayed({
+                mainViewModel.addNote(
+                    Note(
+                        id= 0,
+                        title = "New Note",
+                        content = "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
+                    )
+                )
+            }, 2000)
+
+
+//        CoroutineScope(Dispatchers.IO).launch{
+//
+//            delay(2000)
+//            mainViewModel.addNote(
 //                Note(
-//                    id =0,
-//                    title = "My New notes",
-//                    content = "These are my new notes"
+//                    id= 0,
+//                    title = "New Note",
+//                    content = "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
 //                )
 //            )
-            mainViewModel.getNotes()
-        }
+//        }
         setContent {
             NotesJetpackComposeTheme {
                 // A surface container using the 'background' color from the theme
@@ -61,7 +82,7 @@ class MainActivity : ComponentActivity() {
                 ) {
                     Box (modifier = Modifier.padding(top = 10.dp, bottom = 10.dp)){
 
-                        NotesList(mainViewModel = mainViewModel, onNoteClick = {
+                        NotesList( onNoteClick = {
                             editNotes(it)
                         })
                         IconButton(
@@ -105,10 +126,11 @@ class MainActivity : ComponentActivity() {
             }
         )
     }
+
 }
 
 @Composable
-fun NotesList(mainViewModel: MainViewModel, onNoteClick: (Note) -> Unit) {
+fun NotesList(mainViewModel: MainViewModel=viewModel(), onNoteClick: (Note) -> Unit) {
     val notes = mainViewModel.notesStateFlow.collectAsState()
     when(notes.value){
         is CustomResponse.Success -> {
@@ -151,8 +173,9 @@ fun NotesListPreview() {
             IconButton(
                 onClick = { /*TODO*/ },
                 modifier = Modifier
-                    .padding(20.dp)
+
                     .align(Alignment.BottomEnd)
+                    .padding(20.dp)
                     .clip(CircleShape)
                     .background(Orange)
                     .padding(5.dp)
