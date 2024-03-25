@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -80,8 +81,8 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Box (modifier = Modifier.padding(top = 10.dp, bottom = 10.dp)){
-
+                    Box (modifier = Modifier.padding(top = 10.dp, bottom = 20.dp)){
+                        Log.d("USMAN-TAG","Whole Layout set")
                         NotesList( onNoteClick = {
                             editNotes(it)
                         })
@@ -101,6 +102,8 @@ class MainActivity : ComponentActivity() {
                                 .background(Orange)
                                 .padding(5.dp)
                         ) {
+                            Log.d("USMAN-TAG","Icon Button set")
+
                             Icon(
                                 modifier = Modifier.size(30.dp),
                                 imageVector = Icons.Default.Add,
@@ -132,14 +135,19 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun NotesList(mainViewModel: MainViewModel=viewModel(), onNoteClick: (Note) -> Unit) {
     val notes = mainViewModel.notesStateFlow.collectAsState()
+    Log.d("USMAN-TAG","Whole List set")
+
     when(notes.value){
         is CustomResponse.Success -> {
+            Log.d("USMAN-TAG","Lazy Column set")
+
             LazyColumn(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(10.dp),){
                 items(items = (notes.value as CustomResponse.Success).notesList){
                     note ->
                     Box(modifier = Modifier.clickable {
                         onNoteClick(note)
                     }) {
+                        Log.d("USMAN-TAG","Items Refreshed ${note.id}")
                         NotesItem(title = note.title, content = note.content)
                     }
                 }

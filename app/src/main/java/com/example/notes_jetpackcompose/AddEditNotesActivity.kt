@@ -164,6 +164,7 @@ fun Title(modifier: Modifier = Modifier, noteTitle: MutableStateFlow<String>) {
             focusedContainerColor = Color.White
 
         ),
+        maxLines = 1,
         value = state.value,
         placeholder = { Text("Enter Title",Modifier.fillMaxWidth(), textAlign = TextAlign.Center) },
         onValueChange = { noteTitle.value = it },
