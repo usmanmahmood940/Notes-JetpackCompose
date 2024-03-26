@@ -2,7 +2,7 @@ package com.example.demp_Notecrud.Room
 
 import androidx.room.*
 import androidx.room.Dao
-import com.example.notes_jetpackcompose.Note
+import com.example.notes_jetpackcompose.Models.Note
 import kotlinx.coroutines.flow.Flow
 
 @Dao

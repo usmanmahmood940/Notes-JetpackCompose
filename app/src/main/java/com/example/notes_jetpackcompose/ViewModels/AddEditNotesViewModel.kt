@@ -1,15 +1,17 @@
-package com.example.notes_jetpackcompose
+package com.example.notes_jetpackcompose.ViewModels
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import com.example.notes_jetpackcompose.Models.Note
+import com.example.notes_jetpackcompose.Repositories.NotesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
 class AddEditNotesViewModel @Inject constructor(private val repository: NotesRepository): ViewModel(){
 
-    val noteTitle : MutableStateFlow<String> = MutableStateFlow("")
-    val noteContent : MutableStateFlow<String> = MutableStateFlow("")
+    var noteTitle = mutableStateOf("No Title")
+    var noteContent = mutableStateOf("")
     var noteId:Int = -1
 
 

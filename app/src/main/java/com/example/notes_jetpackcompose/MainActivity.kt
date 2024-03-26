@@ -1,79 +1,32 @@
 package com.example.notes_jetpackcompose
 
-import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.example.notes_jetpackcompose.Utils.Constants.NOTE_ID
+import com.example.notes_jetpackcompose.Screens.AddEditNotesScreen
+import com.example.notes_jetpackcompose.Screens.NotesListScreen
+import com.example.notes_jetpackcompose.Screens.Screens
 import com.example.notes_jetpackcompose.ui.theme.NotesJetpackComposeTheme
-import com.example.notes_jetpackcompose.ui.theme.Orange
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    private val mainViewModel:MainViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-            mainViewModel.getNotes()
-            Handler(Looper.getMainLooper()).postDelayed({
-                mainViewModel.addNote(
-                    Note(
-                        id= 0,
-                        title = "New Note",
-                        content = "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
-                    )
-                )
-            }, 2000)
 
-
-//        CoroutineScope(Dispatchers.IO).launch{
-//
-//            delay(2000)
-//            mainViewModel.addNote(
-//                Note(
-//                    id= 0,
-//                    title = "New Note",
-//                    content = "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
-//                )
-//            )
-//        }
         setContent {
             NotesJetpackComposeTheme {
                 // A surface container using the 'background' color from the theme
@@ -81,88 +34,52 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Box (modifier = Modifier.padding(top = 10.dp, bottom = 20.dp)){
-                        Log.d("USMAN-TAG","Whole Layout set")
-                        NotesList( onNoteClick = {
-                            editNotes(it)
-                        })
-                        IconButton(
-                            onClick = {
-                                startActivity(
-                                    Intent(
-                                        this@MainActivity,
-                                        AddEditNotesActivity::class.java
-                                    ).putExtra("isEdit", false)
-                                )
-                            },
-                            modifier = Modifier
-                                .padding(20.dp)
-                                .align(Alignment.BottomEnd)
-                                .clip(CircleShape)
-                                .background(Orange)
-                                .padding(5.dp)
-                        ) {
-                            Log.d("USMAN-TAG","Icon Button set")
-
-                            Icon(
-                                modifier = Modifier.size(30.dp),
-                                imageVector = Icons.Default.Add,
-                                contentDescription = "Add Note",
-                                tint = Color.White
-                            )
-                        }
-
-                    }
+                    App()
                 }
             }
         }
     }
 
-    fun editNotes(note: Note){
-        startActivity(
-            Intent(
-                this@MainActivity,
-                AddEditNotesActivity::class.java
-            ).apply {
-                putExtra("isEdit", true)
-                putExtra("noteId", note.id)
-            }
-        )
-    }
 
 }
 
 @Composable
-fun NotesList(mainViewModel: MainViewModel=viewModel(), onNoteClick: (Note) -> Unit) {
-    val notes = mainViewModel.notesStateFlow.collectAsState()
-    Log.d("USMAN-TAG","Whole List set")
-
-    when(notes.value){
-        is CustomResponse.Success -> {
-            Log.d("USMAN-TAG","Lazy Column set")
-
-            LazyColumn(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(10.dp),){
-                items(items = (notes.value as CustomResponse.Success).notesList){
-                    note ->
-                    Box(modifier = Modifier.clickable {
-                        onNoteClick(note)
-                    }) {
-                        Log.d("USMAN-TAG","Items Refreshed ${note.id}")
-                        NotesItem(title = note.title, content = note.content)
-                    }
+fun App(){
+    val navController = rememberNavController()
+    NavHost(navController = navController, startDestination = Screens.NotesListScreen.name){
+        composable(route=Screens.NotesListScreen.name){
+            NotesListScreen(
+                onNoteClick = {
+                    navController.navigate("${Screens.EditNoteScreen.name}/${it.id}")
+                },
+                onAddNoteClick = {
+                    navController.navigate(Screens.AddNoteScreen.name)
+                }
+            )
+        }
+        composable(route=Screens.AddNoteScreen.name){
+            AddEditNotesScreen(){
+                navController.popBackStack()
+            }
+        }
+        composable(
+            route="${Screens.EditNoteScreen.name}/{${NOTE_ID}}",
+            arguments = listOf(navArgument(NOTE_ID){
+                type = NavType.IntType
+            })
+        ){
+            it.arguments?.getInt(NOTE_ID)?.let { noteId ->
+                AddEditNotesScreen(isEdit = true,noteId = noteId){
+                    navController.popBackStack()
                 }
             }
         }
-
-        is CustomResponse.Error -> {
-
-        }
-        CustomResponse.Loading -> {
-
-        }
     }
-
 }
+
+
+
+
 
 
 
@@ -170,34 +87,7 @@ fun NotesList(mainViewModel: MainViewModel=viewModel(), onNoteClick: (Note) -> U
 @Composable
 fun NotesListPreview() {
     NotesJetpackComposeTheme {
-        Box (
-            modifier = Modifier.fillMaxSize(),
-        ) {
-            LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp),){
-                items(20){
-                    NotesItem(title = "Title", content = "Content")
-                }
-            }
-            IconButton(
-                onClick = { /*TODO*/ },
-                modifier = Modifier
 
-                    .align(Alignment.BottomEnd)
-                    .padding(20.dp)
-                    .clip(CircleShape)
-                    .background(Orange)
-                    .padding(5.dp)
-
-                ) {
-                Icon(
-                    modifier = Modifier.size(30.dp),
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Add Note",
-                    tint = Color.White,
-
-                )
-            }
-        }
     }
 }
 

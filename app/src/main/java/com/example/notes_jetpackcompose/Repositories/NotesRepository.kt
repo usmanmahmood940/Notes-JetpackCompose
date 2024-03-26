@@ -1,6 +1,8 @@
-package com.example.notes_jetpackcompose
+package com.example.notes_jetpackcompose.Repositories
 
 import com.example.demp_productcrud.Room.NotesDatabase
+import com.example.notes_jetpackcompose.Utils.CustomResponse
+import com.example.notes_jetpackcompose.Models.Note
 import kotlinx.coroutines.flow.MutableStateFlow
 import javax.inject.Inject
 

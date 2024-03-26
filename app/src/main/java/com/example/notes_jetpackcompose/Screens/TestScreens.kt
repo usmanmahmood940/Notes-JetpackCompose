@@ -1,4 +1,4 @@
-package com.example.notes_jetpackcompose
+package com.example.notes_jetpackcompose.Screens
 
 import android.util.Log
 import androidx.compose.material3.Button
