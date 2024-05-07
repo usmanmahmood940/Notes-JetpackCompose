@@ -7,3 +7,8 @@ sealed class CustomResponse {
     data class Error(val message: String) : CustomResponse()
     object Loading : CustomResponse()
 }
+
+enum class Type {
+    NOTE,
+    SCAN,
+}

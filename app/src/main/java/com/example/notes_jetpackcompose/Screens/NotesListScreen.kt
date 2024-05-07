@@ -14,13 +14,19 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,12 +38,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.notes_jetpackcompose.Utils.CustomResponse
 import com.example.notes_jetpackcompose.ViewModels.MainViewModel
 import com.example.notes_jetpackcompose.Models.Note
+import com.example.notes_jetpackcompose.Utils.Type
+import com.example.notes_jetpackcompose.ui.theme.Black
 import com.example.notes_jetpackcompose.ui.theme.LightOrange
 import com.example.notes_jetpackcompose.ui.theme.Orange
 
 
 @Composable
-fun NotesListScreen(onNoteClick: (Note) -> Unit, onAddNoteClick: () -> Unit){
+fun NotesListScreen(onNoteClick: (Note) -> Unit, onAddNoteClick: (type:String) -> Unit){
     val mainViewModel: MainViewModel = hiltViewModel()
     val response = mainViewModel.notesStateFlow.collectAsState().value
     LaunchedEffect(Unit){
@@ -59,7 +67,7 @@ fun NotesListScreen(onNoteClick: (Note) -> Unit, onAddNoteClick: () -> Unit){
             }
         }
         AddIconButton(){
-            onAddNoteClick()
+            onAddNoteClick(it)
         }
     }
 }
@@ -108,10 +116,11 @@ fun NotesItem(note: Note) {
     }
 }
 @Composable
-fun BoxScope.AddIconButton(onClick: () -> Unit) {
+fun BoxScope.AddIconButton(onClick: (type:String) -> Unit) {
+    var showDialog by remember { mutableStateOf(false) }
     IconButton(
         onClick = {
-            onClick()
+            showDialog = true
         },
         modifier = Modifier
             .padding(20.dp)
@@ -126,6 +135,30 @@ fun BoxScope.AddIconButton(onClick: () -> Unit) {
             imageVector = Icons.Default.Add,
             contentDescription = "Add Note",
             tint = Color.White
+        )
+    }
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = { Text(text = "Choose an option") },
+            text = {
+                Column {
+                    TextButton(modifier = Modifier.fillMaxWidth(), onClick = {
+                        onClick(Type.NOTE.name)
+                        showDialog = false
+                    }) {
+                        Text(color = Color.Black, text = "Add Note")
+                    }
+                    TextButton(modifier = Modifier.fillMaxWidth(),onClick = {
+                        onClick(Type.SCAN.name)
+                        showDialog = false
+                    }) {
+                        Text(color = Color.Black, text = "Scan Document")
+                    }
+                }
+            },
+            confirmButton = { },
+            dismissButton = { }
         )
     }
 }
