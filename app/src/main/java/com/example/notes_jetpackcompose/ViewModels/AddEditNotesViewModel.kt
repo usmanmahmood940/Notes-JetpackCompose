@@ -12,22 +12,23 @@ class AddEditNotesViewModel @Inject constructor(private val repository: NotesRep
 
     var noteTitle = mutableStateOf("No Title")
     var noteContent = mutableStateOf("")
-    var noteId:Int = -1
+    var noteId:String? = ""
 
 
-    suspend fun upsertNote(note: Note) {
+    fun upsertNote(note: Note) {
         repository.upsertNote(note)
     }
 
-    suspend fun deleteNote(noteId: Int) {
+    suspend fun deleteNote(noteId: String) {
         repository.deleteNotes(noteId)
     }
 
-     suspend fun getNoteById(noteId: Int) {
+     suspend fun getNoteById(noteId: String) {
          this.noteId = noteId
-         val note = repository.getNoteById(noteId)
-         noteTitle.value = note.title
-         noteContent.value = note.content
+         repository.getNoteById(noteId)?.apply {
+                noteTitle.value = title
+                noteContent.value = content
+         }
     }
 
 }

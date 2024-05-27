@@ -7,8 +7,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 @Entity(tableName = "Note")
 data class Note(
-    @PrimaryKey(autoGenerate = true)
-    val id: Int=0,
+    @PrimaryKey
+    val id: String="",
     val title: String="",
     val content: String=""
 )

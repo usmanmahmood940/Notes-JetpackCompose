@@ -5,6 +5,9 @@ import androidx.room.Room
 import com.example.demp_productcrud.Room.NotesDatabase
 import com.example.notes_jetpackcompose.Utils.Constants.supabaseKey
 import com.example.notes_jetpackcompose.Utils.Constants.supabseUrl
+import com.google.firebase.Firebase
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.firestore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -36,6 +39,13 @@ class DatabaseModule {
             //install other modules
         }
     }
+
+    @Provides
+    @Singleton
+    fun provideFirebaseFirestore(): FirebaseFirestore {
+        return Firebase.firestore
+    }
+
 
 
 

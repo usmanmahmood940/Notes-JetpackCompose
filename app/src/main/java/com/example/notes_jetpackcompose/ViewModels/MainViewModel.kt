@@ -16,20 +16,13 @@ class MainViewModel @Inject constructor(private val repository: NotesRepository)
     val notes = mutableStateListOf<Note>()
 
      fun getNotes() {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.getNotes()
-        }
+         repository.getNotes()
     }
 
-     fun addNote(note: Note) {
-         viewModelScope.launch(Dispatchers.IO) {
-             repository.addNote(note)
-         }
-    }
-    suspend fun upsertNote(note: Note) {
+    fun upsertNote(note: Note) {
         repository.upsertNote(note)
     }
-    suspend fun deleteNotes(noteId: Int) {
+    suspend fun deleteNotes(noteId: String) {
         repository.deleteNotes(noteId)
     }
 

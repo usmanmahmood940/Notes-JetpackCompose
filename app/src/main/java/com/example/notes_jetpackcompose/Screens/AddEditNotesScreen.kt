@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.notes_jetpackcompose.ViewModels.AddEditNotesViewModel
 import com.example.notes_jetpackcompose.Models.Note
+import com.example.notes_jetpackcompose.Utils.HelperClass.generateRandomStringWithTime
 import com.example.notes_jetpackcompose.ui.theme.LightOrange
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -50,14 +51,16 @@ import kotlinx.coroutines.withContext
 
 
 @Composable
-fun AddEditNotesScreen(isEdit: Boolean=false,noteId: Int = 0,onFinish:()->Unit) {
+fun AddEditNotesScreen(isEdit: Boolean=false,noteId: String? = null,onFinish:()->Unit) {
     val addEditNotesViewModel: AddEditNotesViewModel = hiltViewModel()
     var isLoaded by remember { mutableStateOf(true)}
     if(isEdit){
         LaunchedEffect(Unit){
             isLoaded = false
             withContext(Dispatchers.IO) {
-                addEditNotesViewModel.getNoteById(noteId)
+                noteId?.let {
+                    addEditNotesViewModel.getNoteById(it)
+                }
             }
             isLoaded = true
         }
@@ -78,7 +81,9 @@ fun AddEditNotesScreen(isEdit: Boolean=false,noteId: Int = 0,onFinish:()->Unit) 
                 isEdit = isEdit,
                 onDelete = {
                     CoroutineScope(Dispatchers.IO).launch {
-                        addEditNotesViewModel.deleteNote(noteId)
+                        noteId?.let {
+                            addEditNotesViewModel.deleteNote(it)
+                        }
                         withContext(Dispatchers.Main) {
                             onFinish()
                         }
@@ -90,7 +95,7 @@ fun AddEditNotesScreen(isEdit: Boolean=false,noteId: Int = 0,onFinish:()->Unit) 
                         addEditNotesViewModel.apply {
                             upsertNote(
                                 Note(
-                                    id = noteId,
+                                    id = noteId?:generateRandomStringWithTime(),
                                     title = noteTitle.value,
                                     content = noteContent.value
                                 )

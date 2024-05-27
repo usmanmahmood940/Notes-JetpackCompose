@@ -68,7 +68,7 @@ fun App(){
                 type = NavType.IntType
             })
         ){
-            it.arguments?.getInt(NOTE_ID)?.let { noteId ->
+            it.arguments?.getString(NOTE_ID)?.let { noteId ->
                 AddEditNotesScreen(isEdit = true,noteId = noteId){
                     navController.popBackStack()
                 }
