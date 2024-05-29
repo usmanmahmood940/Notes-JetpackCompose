@@ -67,6 +67,7 @@ dependencies {
     implementation("androidx.room:room-ktx:2.6.1")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
     implementation("com.google.firebase:firebase-firestore:25.0.0")
+    implementation("com.google.mlkit:translate:17.0.2")
     kapt("androidx.room:room-compiler:2.6.1")
     implementation("com.google.dagger:hilt-android:2.48.1")
     implementation("androidx.appcompat:appcompat:1.6.1")

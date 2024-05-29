@@ -1,8 +1,15 @@
 package com.example.notes_jetpackcompose
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
 import android.os.Bundle
+import android.speech.RecognitionListener
+import android.speech.RecognizerIntent
+import android.speech.SpeechRecognizer
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -18,11 +25,21 @@ import com.example.notes_jetpackcompose.Utils.Constants.NOTE_ID
 import com.example.notes_jetpackcompose.Screens.AddEditNotesScreen
 import com.example.notes_jetpackcompose.Screens.NotesListScreen
 import com.example.notes_jetpackcompose.Screens.Screens
+import com.example.notes_jetpackcompose.Screens.startListening
+import com.example.notes_jetpackcompose.ViewModels.AddEditNotesViewModel
 import com.example.notes_jetpackcompose.ui.theme.NotesJetpackComposeTheme
+import com.google.mlkit.nl.translate.TranslateLanguage
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    private lateinit var  recognitionIntent: Intent
+    private val speechRecognizer: SpeechRecognizer by lazy {
+        SpeechRecognizer.createSpeechRecognizer(this)
+    }
+
+    private val viewModel: AddEditNotesViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,10 +58,11 @@ class MainActivity : ComponentActivity() {
     }
 
 
+
 }
 
 @Composable
-fun App(){
+fun App() {
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = Screens.NotesListScreen.name){
         composable(route=Screens.NotesListScreen.name){
