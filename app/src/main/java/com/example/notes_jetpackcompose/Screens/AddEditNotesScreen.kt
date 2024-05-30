@@ -1,11 +1,13 @@
 package com.example.notes_jetpackcompose.Screens
 
+import android.Manifest
 import android.content.Intent
 import android.os.Bundle
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -33,6 +35,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,6 +56,10 @@ import com.example.notes_jetpackcompose.Models.Note
 import com.example.notes_jetpackcompose.R
 import com.example.notes_jetpackcompose.Utils.HelperClass.generateRandomStringWithTime
 import com.example.notes_jetpackcompose.ui.theme.LightOrange
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
+import com.google.accompanist.permissions.shouldShowRationale
 import com.google.mlkit.nl.translate.TranslateLanguage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -60,6 +67,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun AddEditNotesScreen(isEdit: Boolean=false,noteId: String? = null,onFinish:()->Unit) {
     val addEditNotesViewModel: AddEditNotesViewModel = hiltViewModel()
@@ -67,7 +75,7 @@ fun AddEditNotesScreen(isEdit: Boolean=false,noteId: String? = null,onFinish:()-
     val context = LocalContext.current
     val speechRecognizer = remember { SpeechRecognizer.createSpeechRecognizer(context) }
     val recognitionIntent by remember { mutableStateOf(Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)) }
-
+    CheckPermission()
     LaunchedEffect(Unit) {
         setupSpeechRecognizer(speechRecognizer, recognitionIntent, addEditNotesViewModel)
     }
@@ -138,6 +146,26 @@ fun AddEditNotesScreen(isEdit: Boolean=false,noteId: String? = null,onFinish:()-
 }
 
 @Composable
+@OptIn(ExperimentalPermissionsApi::class)
+fun CheckPermission() {
+    val permissionState = rememberPermissionState(Manifest.permission.RECORD_AUDIO)
+    if (!permissionState.status.isGranted) {
+        if (permissionState.status.shouldShowRationale) {
+            // Show a rationale if needed (optional)
+        } else {
+            // Request the permission
+            SideEffect {
+                permissionState.launchPermissionRequest()
+
+            }
+
+        }
+    } else {
+        Toast.makeText(LocalContext.current, "Permission Given Already", Toast.LENGTH_SHORT).show()
+    }
+}
+
+@Composable
 fun Title(modifier: Modifier = Modifier, noteTitle: MutableState<String>) {
     TextField(
         modifier = modifier
@@ -191,6 +219,11 @@ fun ColumnScope.BottomButtonsBar(
     speechRecognizer: SpeechRecognizer,
     recognitionIntent: Intent
 ) {
+
+    val addEditNotesViewModel: AddEditNotesViewModel = hiltViewModel()
+    val micState by remember {
+        addEditNotesViewModel.micState
+    }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -201,7 +234,8 @@ fun ColumnScope.BottomButtonsBar(
         ActionButton(
             onClick = { startListening(speechRecognizer,recognitionIntent) },
             contentDescription = "Voice Type",
-            icon = ImageVector.vectorResource(id = R.drawable.ic_mic)
+            icon = ImageVector.vectorResource(id = R.drawable.ic_mic),
+            iconColor = if (micState) Color.Green else Color.Black
         )
     }
     Divider(
@@ -237,7 +271,7 @@ fun ColumnScope.BottomButtonsBar(
 }
 
 @Composable
-fun RowScope.ActionButton(onClick: () -> Unit, contentDescription: String, icon: ImageVector) {
+fun RowScope.ActionButton(onClick: () -> Unit, contentDescription: String, icon: ImageVector,iconColor: Color = Color.Black) {
     Box(
         modifier = Modifier
             .fillMaxHeight()
@@ -250,7 +284,7 @@ fun RowScope.ActionButton(onClick: () -> Unit, contentDescription: String, icon:
             Icon(
                 imageVector = icon,
                 contentDescription = contentDescription,
-                tint = Color.Black,
+                tint = iconColor,
                 modifier = Modifier.size(50.dp)
 
             )
@@ -277,11 +311,11 @@ fun startListening(speechRecognizer: SpeechRecognizer, recognitionIntent: Intent
 fun speechRecognitionListener(viewModel: AddEditNotesViewModel): RecognitionListener {
     return object : RecognitionListener {
         override fun onReadyForSpeech(params: Bundle?) {
-            Log.d("SpeechRecognition", "Ready for speech")
+            viewModel.micState.value = true
         }
 
         override fun onBeginningOfSpeech() {
-            Log.d("SpeechRecognition", "Beginning of speech")
+            viewModel.micState.value = true
         }
 
         override fun onRmsChanged(rmsdB: Float) {}
@@ -300,8 +334,12 @@ fun speechRecognitionListener(viewModel: AddEditNotesViewModel): RecognitionList
             Log.d("SpeechRecognition", "Results received")
             val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
             matches?.get(0)?.let {
-                viewModel.noteContent.value = it
+                viewModel.apply {
+                    noteContent.value = noteContent.value + " " + it
+
+                }
             }
+            viewModel.micState.value = false
         }
 
         override fun onPartialResults(partialResults: Bundle?) {
